@@ -1,0 +1,4 @@
+# Basic requirements - we'll add more as needed 
+requests==2.31.0
+beautifulsoup4==4.12.3
+lxml 
