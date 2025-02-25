@@ -29,6 +29,11 @@ def generate_html(trends, output_file='hosted_files/index.html'):
                 max-width: 1200px;
                 margin: 0 auto;
             }
+            .logo {
+                display: block;
+                margin: 0 auto 20px;
+                max-width: 200px; /* Adjust as needed */
+            }
             .trend { 
                 margin-bottom: 20px; 
                 padding: 20px; 
@@ -82,11 +87,18 @@ def generate_html(trends, output_file='hosted_files/index.html'):
                     padding: 8px; 
                 }
             }
+            .trends-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 20px;
+            }
         </style>
     </head>
     <body>
         <div class="container">
+            <img src="src/logo.png" alt="Hot Topic Insights Logo" class="logo"> <!-- Update the path to your logo -->
             <h1><span class="brand">Hot Topic Insights</span> - Trending Now</h1>
+            <div class="trends-grid">
     """
     
     # Add each trend and its news items
@@ -119,6 +131,7 @@ def generate_html(trends, output_file='hosted_files/index.html'):
         """
     
     html_content += """
+            </div>
         </div>
     </body>
     </html>
