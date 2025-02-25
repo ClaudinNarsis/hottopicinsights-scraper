@@ -71,24 +71,35 @@ def create_story_files(trends):
             <title>{trend['topic']}</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 20px; }}
-                h1, h2 {{ color: #333; }}
+                h1 {{ color: #333; text-align: center; }}
+                h2 {{ color: #555; }}
                 img {{ max-width: 100%; height: auto; margin: 10px 0; }}
+                .cover-image {{ width: 100%; height: auto; margin-bottom: 20px; }}
                 .news-item {{ border-bottom: 1px solid #ccc; padding: 20px 0; }}
                 .news-item:last-child {{ border-bottom: none; }}
+                .container {{ max-width: 800px; margin: auto; }}
             </style>
         </head>
         <body>
-            <h1>{trend['topic']}</h1>
+            <div class="container">
+                <h1>{trend['topic']}</h1>
         """
+
+        # Collect images for the overall cover image
+        cover_image_urls = collect_image_urls(trend['news_items'][0]['url'], trend['topic'])  # Use the first news item for cover image
+        cover_image = cover_image_urls[0] if cover_image_urls else None  # Get the first image as a cover image
+
+        # Add the cover image if available
+        if cover_image:
+            html_content += f'<img class="cover-image" src="{cover_image}" alt="Cover image for {trend["topic"]}"><br>'
+        else:
+            html_content += '<p>No cover image available.</p>'  # Indicate no cover image
 
         # Add each news item to the trend file
         for news in trend['news_items']:
             # Collect images for this news item
             image_urls = collect_image_urls(news['url'], trend['topic'])  # Pass the trend topic
             preview_image = image_urls[0] if image_urls else None  # Get the first image as a preview
-
-            # Debugging: Print the preview image URL
-            print(f"Preview image for '{news['title']}': {preview_image}")
 
             html_content += f"""
             <div class="news-item">
@@ -116,6 +127,7 @@ def create_story_files(trends):
             """
 
         html_content += """
+            </div>
         </body>
         </html>
         """
