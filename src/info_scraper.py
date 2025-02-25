@@ -95,34 +95,13 @@ def create_story_files(trends):
         else:
             html_content += '<p>No cover image available.</p>'  # Indicate no cover image
 
-        # Add each news item to the trend file
+        # Add each news item to the trend file without preview images
         for news in trend['news_items']:
-            # Collect images for this news item
-            image_urls = collect_image_urls(news['url'], trend['topic'])  # Pass the trend topic
-            preview_image = image_urls[0] if image_urls else None  # Get the first image as a preview
-
             html_content += f"""
             <div class="news-item">
                 <h2>{news['title']}</h2>
                 <p>Source: {news['source']}</p>
                 <a href="{news['url']}" target="_blank">Read more</a>
-            """
-
-            # Add the preview image if available
-            if preview_image:
-                html_content += f'<img src="{preview_image}" alt="Preview for {news["title"]}"><br>'
-            else:
-                html_content += '<p>No preview image available.</p>'  # Indicate no preview image
-
-            html_content += """
-                <div class="images">
-            """
-
-            for image_url in image_urls:
-                html_content += f'    <img src="{image_url}" alt="Image for {news["title"]}"><br>'
-
-            html_content += """
-                </div>
             </div>
             """
 
