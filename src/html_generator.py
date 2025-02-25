@@ -6,11 +6,13 @@ def generate_html(trends, output_file='hosted_files/index.html'):
     # Create HTML content
     html_content = """
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Hot Topic Insights - Trending Now</title>
+        <meta name="description" content="Stay updated with the latest trending topics and news articles.">
+        <meta name="keywords" content="trending, news, hot topics, insights">
         <style>
             body { 
                 font-family: Arial, sans-serif; 
@@ -71,6 +73,14 @@ def generate_html(trends, output_file='hosted_files/index.html'):
             .brand {
                 color: #e74c3c;
                 font-weight: bold;
+            }
+            @media (max-width: 600px) {
+                .trend { 
+                    padding: 15px; 
+                }
+                .news-item { 
+                    padding: 8px; 
+                }
             }
         </style>
     </head>
