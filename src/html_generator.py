@@ -32,11 +32,11 @@ def generate_html(trends, output_file='hosted_files/index.html'):
             .logo {
                 display: block;
                 margin: 0 auto 20px;
-                max-width: 200px; /* Adjust as needed */
+                max-width: 200px;
             }
             .trend { 
                 margin-bottom: 20px; 
-                padding: 20px; 
+                padding: 0;
                 border-radius: 8px;
                 background: white;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -45,17 +45,35 @@ def generate_html(trends, output_file='hosted_files/index.html'):
                 text-decoration: none;
                 color: inherit;
                 display: block;
+                overflow: hidden;
             }
             .trend:hover { 
                 transform: translateY(-3px);
                 box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            }
+            .trend-image {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+            }
+            .trend-content {
+                padding: 20px;
             }
             .trend h2 { 
                 color: #444; 
                 margin-top: 0;
                 display: flex;
                 justify-content: space-between;
-                align-items: center;
+                align-items: flex-start;
+                font-size: 1.1em;
+                gap: 15px;
+            }
+            .trend-topic {
+                color: #666;
+                font-size: 0.85em;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
             .traffic {
                 font-size: 0.9em;
@@ -63,9 +81,11 @@ def generate_html(trends, output_file='hosted_files/index.html'):
                 padding: 4px 8px;
                 background: #f0f0f0;
                 border-radius: 4px;
+                white-space: nowrap;
+                flex-shrink: 0;
             }
             .news-item { 
-                margin: 10px 0;
+                margin: 10px 0 0;
                 padding: 10px;
                 border-left: 3px solid #e74c3c;
                 background: #f9f9f9;
@@ -80,11 +100,21 @@ def generate_html(trends, output_file='hosted_files/index.html'):
                 font-weight: bold;
             }
             @media (max-width: 600px) {
-                .trend { 
+                .trend-content { 
                     padding: 15px; 
                 }
                 .news-item { 
                     padding: 8px; 
+                }
+                .trend h2 {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                .traffic {
+                    margin-top: 5px;
+                }
+                .trend-image {
+                    height: 150px;
                 }
             }
             .trends-grid {
@@ -96,7 +126,7 @@ def generate_html(trends, output_file='hosted_files/index.html'):
     </head>
     <body>
         <div class="container">
-            <img src="src/logo.png" alt="Hot Topic Insights Logo" class="logo"> <!-- Update the path to your logo -->
+            <img src="src/logo.png" alt="Hot Topic Insights Logo" class="logo">
             <h1><span class="brand">Hot Topic Insights</span> - Trending Now</h1>
             <div class="trends-grid">
     """
@@ -106,26 +136,42 @@ def generate_html(trends, output_file='hosted_files/index.html'):
         # Create sanitized filename for the story link
         story_filename = trend['topic'].replace(" ", "_").replace("/", "_").lower() + ".html"
         
+        # Get the first news article's title to use as the main headline
+        main_headline = trend['news_items'][0]['title'] if trend['news_items'] else trend['topic']
+        
+        # Get the image for the trend
+        trend_image = trend.get('picture') or (trend['news_items'][0].get('news_item_picture') if trend['news_items'] else None)
+        
         html_content += f"""
         <a href="stories/{story_filename}" class="trend">
-            <h2>
-                {trend['topic']}
-                <span class="traffic">{trend['traffic']} searches</span>
-            </h2>
-            <div class="news-items">
         """
         
-        # Add first news item as preview
+        if trend_image:
+            html_content += f"""
+            <img src="{trend_image}" alt="{trend['topic']}" class="trend-image">
+            """
+            
+        html_content += f"""
+            <div class="trend-content">
+                <div class="trend-topic">{trend['topic']}</div>
+                <h2>
+                    {main_headline}
+                    <span class="traffic">{trend['traffic']} searches</span>
+                </h2>
+                <div class="news-items">
+        """
+        
+        # Add first news item source as preview
         if trend['news_items']:
             first_news = trend['news_items'][0]
             html_content += f"""
-                <div class="news-item">
-                    <div>{first_news['title']}</div>
-                    <div class="source">Source: {first_news['source']}</div>
-                </div>
-            """
+                    <div class="news-item">
+                        <div class="source">Source: {first_news['source']}</div>
+                    </div>
+                """
             
         html_content += """
+                </div>
             </div>
         </a>
         """
