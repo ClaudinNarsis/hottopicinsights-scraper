@@ -18,8 +18,8 @@ def is_english(text):
         return False
     return True
 
-def fetch_trends():
-    url = "https://trends.google.com/trending/rss?geo=IN&hours=24&category=4&status=active"
+def fetch_trends(geo="IN"):
+    url = f"https://trends.google.com/trending/rss?geo={geo}&hours=24&status=active&hl=en-US"
     
     try:
         # Fetch the RSS feed
@@ -39,6 +39,7 @@ def fetch_trends():
                 continue  # Skip non-English items
             
             traffic = item.find('ht:approx_traffic').text if item.find('ht:approx_traffic') else 'N/A'
+            picture = item.find('ht:picture').text if item.find('ht:picture') else None
             
             # Get news items
             news_items = []
@@ -46,17 +47,23 @@ def fetch_trends():
                 news_items.append({
                     'title': news.find('ht:news_item_title').text,
                     'source': news.find('ht:news_item_source').text,
-                    'url': news.find('ht:news_item_url').text
+                    'url': news.find('ht:news_item_url').text,
+                    'news_item_picture': news.find('ht:news_item_picture').text if news.find('ht:news_item_picture') else None
                 })
             
             trends.append({
                 'topic': title,
                 'traffic': traffic,
+                'picture': picture,
                 'news_items': news_items
             })
         
         # Sort trends by traffic (highest to lowest)
         trends.sort(key=lambda x: parse_traffic(x['traffic']), reverse=True)
+        
+        # Filter out trends with traffic <= 1000
+        trends = [trend for trend in trends if parse_traffic(trend['traffic']) > 200]
+        
         return trends
             
     except requests.RequestException as e:
@@ -78,11 +85,3 @@ def print_trends(trends):
             print(f"     URL: {news['url']}\n")
     
     print("=" * 80)
-
-def main():
-    print("Google Trends Scraper initialized!")
-    trends = fetch_trends()
-    print_trends(trends)
-
-if __name__ == "__main__":
-    main() 

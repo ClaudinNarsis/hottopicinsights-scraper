@@ -196,19 +196,15 @@ def create_story_files(trends):
     if not os.path.exists('hosted_files/stories'):
         os.makedirs('hosted_files/stories')  # Create a directory for story files
 
-    # Create a file for each trend
     for trend in trends:
-        # Check if 'topic' key exists in trend
         if 'topic' not in trend:
             print(f"Warning: 'topic' key not found in trend: {trend}")
-            continue  # Skip this trend if 'topic' is missing
+            continue
 
-        # Create a sanitized filename from the trend topic
         trend_name = trend['topic'].replace(" ", "_").replace("/", "_").lower()
         file_name = f"{trend_name}.html"
         story_file_path = os.path.join('hosted_files/stories', file_name)
 
-        # Create HTML content for the trend
         html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -222,46 +218,45 @@ def create_story_files(trends):
                 h1 {{ color: #333; text-align: center; margin-top: 20px; }}
                 h2 {{ color: #555; margin: 10px 0; }}
                 .container {{ max-width: 800px; margin: auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }}
-                img {{ max-width: 100%; height: auto; max-height: 600px; margin: 10px 0; border-radius: 5px; }}
-                .cover-image {{ width: auto; height: auto; max-width: 100%; max-height: 600px; margin-bottom: 20px; }}
-                .news-item {{ border-bottom: 1px solid #ccc; padding: 20px 0; }}
+                .cover-image {{ width: 100%; height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }}
+                .news-item {{ border-bottom: 1px solid #ccc; padding: 20px 0; display: flex; gap: 20px; }}
                 .news-item:last-child {{ border-bottom: none; }}
+                .news-image {{ width: 200px; height: 150px; object-fit: cover; border-radius: 5px; }}
+                .news-content {{ flex: 1; }}
+                .news-source {{ color: #666; font-size: 0.9em; margin: 5px 0; }}
+                .read-more {{ color: #e74c3c; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }}
+                .read-more:hover {{ text-decoration: underline; }}
                 .footer {{ text-align: center; margin-top: 20px; font-size: 0.9em; color: #777; }}
                 .brand {{ font-weight: bold; color: #e74c3c; }}
+                .traffic {{ text-align: center; color: #666; margin: 10px 0; }}
                 @media (max-width: 600px) {{
-                    h1 {{ font-size: 1.5em; }}
-                    h2 {{ font-size: 1.2em; }}
+                    .news-item {{ flex-direction: column; }}
+                    .news-image {{ width: 100%; height: 200px; }}
                 }}
             </style>
         </head>
         <body>
             <div class="container">
                 <h1>Hot Topic Insights: {trend['topic']}</h1>
+                <div class="traffic">Trending with {trend.get('traffic', 'N/A')} searches</div>
         """
 
-        # Collect images for the overall cover image
-        cover_image_urls = collect_image_urls(trend['news_items'][0]['url'], trend['topic'])  # Use the first news item for cover image
-        cover_image = cover_image_urls[0] if cover_image_urls else None  # Get the first image as a cover image
+        # Add the trend's main image if available
+        if 'picture' in trend:
+            html_content += f'<img class="cover-image" src="{trend["picture"]}" alt="Cover image for {trend["topic"]}">'
 
-        # If no cover image is found, fetch from Google
-        if not cover_image:
-            print(f"No cover image found for '{trend['topic']}'. Fetching from Google Images...")
-            cover_image = fetch_google_image(trend['topic'])
-            time.sleep(2)  # Add a delay to avoid hitting the server too quickly
-
-        # Add the cover image if available
-        if cover_image:
-            html_content += f'<img class="cover-image" src="{cover_image}" alt="Cover image for {trend["topic"]}"><br>'
-        else:
-            html_content += '<p>No cover image available.</p>'  # Indicate no cover image
-
-        # Add each news item to the trend file without preview images
+        # Add each news item with its image
         for news in trend['news_items']:
             html_content += f"""
             <div class="news-item">
-                <h2>{news['title']}</h2>
-                <p>Source: {news['source']}</p>
-                <a href="{news['url']}" target="_blank" style="color: #e74c3c; text-decoration: none;">Read more <i class="fas fa-external-link-alt"></i></a>
+                <img class="news-image" src="{news.get('news_item_picture', '')}" alt="{news['title']}">
+                <div class="news-content">
+                    <h2>{news['title']}</h2>
+                    <p class="news-source">Source: {news['source']}</p>
+                    <a href="{news['url']}" target="_blank" class="read-more">
+                        Read more <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
             </div>
             """
 
@@ -274,7 +269,6 @@ def create_story_files(trends):
         </html>
         """
 
-        # Write the trend content to a file
         with open(story_file_path, "w", encoding="utf-8") as file:
             file.write(html_content)
         print(f"Trend file '{story_file_path}' has been created.") 
